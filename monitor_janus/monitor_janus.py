@@ -16,6 +16,9 @@ global log_path
 log_path = ""
 global result_data
 result_data = {}
+global fp
+fp = None
+
 
 def get_command_param(configfile='monitor.conf'):
     global proccess_name
@@ -37,18 +40,18 @@ def get_command_param(configfile='monitor.conf'):
         thread_name = cf.get("info","target_thread_name")
         print thread_name
         threadNameList = thread_name.split(",")
-        print type(thread_name)
-        print type(threadNameList)
-        print threadNameList
+        # print type(thread_name)
+        # print type(threadNameList)
+        # print threadNameList
         log_path = cf.get("info","log_path")
         print "get log_path",log_path
         if not os.path.isabs(log_path):
             abs_path = os.path.abspath(".")
             log_path = os.path.join(abs_path,log_path)
             print "log_path",log_path
-        if not ( os.path.isdir(log_path) and os.path.exists(log_path)):
-            print "no log path,create"
-            os.mkdir(log_path)
+        # if os.path.isdir(log_path) and not (os.path.exists(log_path)):
+        #     print "no log path,create"
+        #     os.mkdir(log_path)
         # for th in thread_name:
         #     print th
 
@@ -62,21 +65,29 @@ def monitor_thread(proccessName,threadName):
     thread_number = ret[0]
     if thread_number == '0':
         return
+    thread_number = int(thread_number)
     result_data[threadName] = thread_number
 
 def log_result():
     # log to json
+    global fp
     global result_data
     tmp = result_data
     tmp["time"]=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) 
     log_text = json.dumps(tmp)
     print log_text
+    print type(log_text)
+    fp.write(log_text+'\n')
+    fp.flush() 
 
 def monitor():
     global proccess_name
     global threadNameList
     global timing_log
     global log_path
+    global fp
+    fp = open(log_path,"a")
+
     print "begin"
     if proccess_name == "":
         print "proccess name error: ",proccess_name
@@ -84,6 +95,8 @@ def monitor():
     for th in threadNameList:
         monitor_thread(proccess_name,th)
     log_result()
+
+    fp.close()
 
 if __name__ == "__main__":
   print "*"*10
