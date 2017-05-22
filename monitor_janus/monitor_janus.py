@@ -61,7 +61,8 @@ def get_command_param(configfile='monitor.conf'):
         print "timing_log_interval=%d" % timing_log_interval
 
 def monitor_thread(proccessName,threadName):
-    cmdline = "".join(('pstree -p $(pidof ',proccessName,') |grep ',threadName,'|wc -l'))
+    # cmdline = "".join(('pstree -p $(pidof ',proccessName,') |grep ',threadName,'|wc -l'))
+    cmdline = "".join(('ps -T -p $(pidof ',proccessName,') |grep ',threadName,'|wc -l'))
     print cmdline   
     # cmd = 'pstree -p $(pidof ',proccessName,') |grep ',threadName,'|wc -l' 
     # print cmd
