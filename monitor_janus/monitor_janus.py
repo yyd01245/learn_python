@@ -3,6 +3,8 @@
 import sys
 import os 
 import ConfigParser
+import json
+import time
 
 global threadNameList
 threadNameList = []
@@ -12,7 +14,8 @@ global timing_log
 timing_log = 120
 global log_path
 log_path = ""
-
+global result_data
+result_data = {}
 
 def get_command_param(configfile='monitor.conf'):
     global proccess_name
@@ -54,9 +57,21 @@ def monitor_thread(proccessName,threadName):
     print cmdline   
     # cmd = 'pstree -p $(pidof ',proccessName,') |grep ',threadName,'|wc -l' 
     # print cmd
+    global result_data
     ret = os.popen(cmdline).readlines() 
-    for line in ret:
-        print line
+    thread_number = ret[0]
+    if thread_number == '0':
+        return
+    result_data[threadName] = thread_number
+
+def log_result():
+    # log to json
+    global result_data
+    tmp = result_data
+    tmp["time"]=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) 
+    log_text = json.dumps(tmp)
+    print log_text
+
 def monitor():
     global proccess_name
     global threadNameList
@@ -68,7 +83,7 @@ def monitor():
         return
     for th in threadNameList:
         monitor_thread(proccess_name,th)
-
+    log_result()
 
 if __name__ == "__main__":
   print "*"*10
