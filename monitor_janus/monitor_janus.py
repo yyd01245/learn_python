@@ -50,11 +50,13 @@ def get_command_param(configfile='monitor.conf'):
         #     print th
 
 def monitor_thread(proccessName,threadName):
-    # cmdline = 'pstree -p $(pidof %s) |grep %s|wc -l' % proccessName , threadName
-    # print cmdline   
-    cmd = 'pstree -p $(pidof ',proccessName,') |grep ',threadName,'|wc -l' 
-    print cmd
-    # ret = os.popen(cmdline).readlines() 
+    cmdline = "".join(('pstree -p $(pidof ',proccessName,') |grep ',threadName,'|wc -l'))
+    print cmdline   
+    # cmd = 'pstree -p $(pidof ',proccessName,') |grep ',threadName,'|wc -l' 
+    # print cmd
+    ret = os.popen(cmdline).readlines() 
+    for line in ret:
+        print line
 def monitor():
     global proccess_name
     global threadNameList
