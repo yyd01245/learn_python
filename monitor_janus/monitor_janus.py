@@ -63,7 +63,7 @@ def get_command_param(configfile='monitor.conf'):
 def monitor_thread(proccessName,threadName):
     # cmdline = "".join(('pstree -p $(pidof ',proccessName,') |grep ',threadName,'|wc -l'))
     cmdline = "".join(('ps -T -p $(pidof ',proccessName,') |grep ',threadName,'|wc -l'))
-    print cmdline   
+    # print cmdline   
     # cmd = 'pstree -p $(pidof ',proccessName,') |grep ',threadName,'|wc -l' 
     # print cmd
     global result_data
@@ -108,6 +108,7 @@ def monitor():
             for th in threadNameList:
                 monitor_thread(proccess_name,th)
             log_result()
+            sys.stdout.flush()
         time.sleep(1)
     fp.close()
 
