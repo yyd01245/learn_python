@@ -31,11 +31,37 @@ def list_Delay():
   #   xticks.append(int(data))
   
   # avg_x = []
-  # for x in range(0,len(avg_big),1):
-  #   data = x*2
-  #   avg_x.append(int(data))
+  sumValue = 0
+  less10ms = 0
+  greater10ms = 0
+  greater25ms = 0
+  greater50ms = 0
+  greater100ms = 0
+  greater150ms = 0
+  for x in dataChannelDelay:
+    print x
+    if x > 150000:
+      greater150ms += 1
+    elif x > 100000:
+      greater100ms += 1
+    elif x > 50000:
+      greater50ms += 1
+    elif x > 25000:
+      greater25ms += 1
+    elif x > 10000:
+      greater10ms += 1
+    else:
+      less10ms += 1
+  print "delay time >150ms count=%d" % greater150ms
+  print "delay time >100ms < 150ms count=%d" % greater100ms
+  print "delay time >50ms < 100ms count=%d" % greater50ms
+  print "delay time >25ms < 50ms count=%d" % greater25ms
+  print "delay time >10ms <25ms count=%d" % greater10ms
+  print "delay time <=10ms count=%d" % less10ms
+  # avg = sumValue / len(dataChannelDelay)
 
-  print "diff  len",len(dataChannelDelay)
+  avg = sum(dataChannelDelay) / float(len(dataChannelDelay))
+  print "diff  len=%d avg=%d" % (len(dataChannelDelay),avg)
   plt.figure(1,figsize=(8,6))
 
   print len(httpDelay)
@@ -66,7 +92,7 @@ def func_read_httpDelay(filename):
       global dataChannelDelay
       global avg_big
       t = line.split("diff = ")
-      print t[1]
+      #print t[1]
       dataChannelDelay.append(int(t[1]))
     
 if __name__ == "__main__":
