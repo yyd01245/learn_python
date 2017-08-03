@@ -9,12 +9,13 @@ global httpDelay
 global ytime
 global index
 global dataChannelDelay
-
+global tcpPingDelay
 
 dataChannelDelay = []
 httpDelay = []
 ytime = []
 index = 0
+tcpPingDelay = []
 
 global delay_tol
 delay_tol = 0
@@ -23,7 +24,7 @@ delay_index = 0
 
 
 def list_Delay():
-  global httpDelay
+
   # xticks = []
 
   # for d in range(0,len(httpDelay),1):
@@ -33,41 +34,70 @@ def list_Delay():
   # avg_x = []
   sumValue = 0
   less10ms = 0
-  greater10ms = 0
-  greater25ms = 0
-  greater50ms = 0
-  greater100ms = 0
-  greater150ms = 0
-  for x in dataChannelDelay:
-    print x
-    if x > 150000:
-      greater150ms += 1
-    elif x > 100000:
-      greater100ms += 1
-    elif x > 50000:
-      greater50ms += 1
-    elif x > 25000:
-      greater25ms += 1
-    elif x > 10000:
-      greater10ms += 1
-    else:
-      less10ms += 1
-  print "delay time >150ms count=%d" % greater150ms
-  print "delay time >100ms < 150ms count=%d" % greater100ms
-  print "delay time >50ms < 100ms count=%d" % greater50ms
-  print "delay time >25ms < 50ms count=%d" % greater25ms
-  print "delay time >10ms <25ms count=%d" % greater10ms
-  print "delay time <=10ms count=%d" % less10ms
-  # avg = sumValue / len(dataChannelDelay)
 
-  avg = sum(dataChannelDelay) / float(len(dataChannelDelay))
-  print "diff  len=%d avg=%d" % (len(dataChannelDelay),avg)
+  # avg = sumValue / len(dataChannelDelay)
+  if(len(tcpPingDelay) > 0):
+    greater10ms = 0
+    greater25ms = 0
+    greater50ms = 0
+    greater100ms = 0
+    greater150ms = 0
+    for x in tcpPingDelay:
+      # print x
+      if x > 150:
+        greater150ms += 1
+      elif x > 100:
+        greater100ms += 1
+      elif x > 50:
+        greater50ms += 1
+      elif x > 25:
+        greater25ms += 1
+      elif x > 10:
+        greater10ms += 1
+      else:
+        less10ms += 1
+    print "delay time >150ms count=%d rate=%f" % (greater150ms,greater150ms/float(len(tcpPingDelay)));
+    print "delay time >100ms < 150ms count=%d rate=%f" % (greater100ms,greater100ms/float(len(tcpPingDelay)))
+    print "delay time >50ms < 100ms count=%d rate=%f" % (greater50ms,greater50ms/float(len(tcpPingDelay)));
+    print "delay time >25ms < 50ms count=%d rate=%f" % (greater25ms,greater25ms/float(len(tcpPingDelay)));
+    print "delay time >10ms <25ms count=%d rate=%f" % (greater10ms,greater10ms/float(len(tcpPingDelay)));
+    print "delay time <=10ms count=%d" % less10ms
+    avg = sum(tcpPingDelay) / float(len(tcpPingDelay))
+    print "diff  len=%d avg=%d" % (len(tcpPingDelay),avg)
+  if(len(dataChannelDelay) > 0):
+    greater10ms = 0
+    greater25ms = 0
+    greater50ms = 0
+    greater100ms = 0
+    greater150ms = 0
+    for x in dataChannelDelay:
+      # print x
+      if x > 150:
+        greater150ms += 1
+      elif x > 100:
+        greater100ms += 1
+      elif x > 50:
+        greater50ms += 1
+      elif x > 25:
+        greater25ms += 1
+      elif x > 10:
+        greater10ms += 1
+      else:
+        less10ms += 1
+    print "delay time >150ms count=%d rate=%f" % (greater150ms,greater150ms/float(len(dataChannelDelay)));
+    print "delay time >100ms < 150ms count=%d rate=%f" % (greater100ms,greater100ms/float(len(dataChannelDelay)))
+    print "delay time >50ms < 100ms count=%d rate=%f" % (greater50ms,greater50ms/float(len(dataChannelDelay)));
+    print "delay time >25ms < 50ms count=%d rate=%f" % (greater25ms,greater25ms/float(len(dataChannelDelay)));
+    print "delay time >10ms <25ms count=%d rate=%f" % (greater10ms,greater10ms/float(len(dataChannelDelay)));
+    print "delay time <=10ms count=%d" % less10ms
+    avg = sum(dataChannelDelay) / float(len(dataChannelDelay))
+    print "diff  len=%d avg=%d" % (len(dataChannelDelay),avg)
   plt.figure(1,figsize=(8,6))
 
-  print len(httpDelay)
-  plt.plot(range(0,len(httpDelay),1),httpDelay,label="http delay ",color="red",linewidth=2)
+  print len(tcpPingDelay)
+  plt.plot(range(0,len(tcpPingDelay),1),tcpPingDelay,label="icmp ping delay ",color="red",linewidth=2)
   plt.plot(range(0,len(dataChannelDelay),1),dataChannelDelay,label="data channel Delay",color="green",linewidth=2)
-  plt.title("datachannel delay and httpDelay x scale 0.2ms")
+  plt.title("datachannel delay and ping ms")
   plt.legend(loc='upper left')
   #plt.figure(2)
 
@@ -92,8 +122,26 @@ def func_read_httpDelay(filename):
       global dataChannelDelay
       global avg_big
       t = line.split("diff = ")
-      #print t[1]
+      if int(t[1]) > 500:
+        print t[1]
       dataChannelDelay.append(int(t[1]))
+    elif line.find("packets transmitted") != -1:
+      global tcpPingDelay
+      l = line.split("time ")
+      # print l[1]
+      #print("%s" % l[1])
+      data = l[1].split("ms")
+      print data[0]
+      tcpPingDelay.append(float(data[0]));
+    elif line.find(" time") != -1:
+      global tcpPingDelay
+      l = line.split("time=")
+      # print l[1]
+      #print("%s" % l[1])
+      data = l[1].split(" ")
+      print data[0]
+      tcpPingDelay.append(float(data[0]));
+
     
 if __name__ == "__main__":
 
